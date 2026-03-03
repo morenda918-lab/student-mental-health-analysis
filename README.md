@@ -1,49 +1,137 @@
-# Student Mental Health Analysis
-
-## A Data Science Approach to Predicting Depression Risk in Adolescents
+# Student Mental Health Analysis  
+### A Quantitative Research Project on Depression Risk and Educational Policy Implications
 
 ---
 
-## Project Overview
+## Research Background
 
-This project applies statistical modeling and machine learning techniques to examine the association between students’ life stress events and depression risk.
+Adolescent mental health has become a critical issue in contemporary educational systems.  
+This project applies rigorous statistical modeling to examine how life stress events and psychosocial factors predict depression risk among students.
 
-The primary goal is to develop predictive indicators that support early identification of high-risk students and inform evidence-based educational policy decisions.
+The study aims to support evidence-based educational decision-making and early identification mechanisms within school systems.
 
-This study integrates data from:
+---
 
-- Taiwan Assessment of Student Achievement: Longitudinal Study (TASAL)
-- Taiwan i-Generation Panel Study (TIGPS)
+## Data Source
+
+This research utilizes nationally representative student survey data from:
+
+- **Taiwan Assessment of Student Achievement: Longitudinal Study (TASAL)**
+
+**Sample Size:** 7,177 students  
+**Survey Period:** 2024–2025  
+**Population:** National student sample (Taiwan)
+
+Due to privacy regulations, raw data are not publicly available.
 
 ---
 
 ## Research Objectives
 
-- **Risk Identification**: Develop robust predictive indicators of depression risk.
-- **Policy Support**: Provide evidence-based insights for educational administration.
-- **Early Intervention**: Assist schools in implementing preventive counseling strategies.
-- **Resource Optimization**: Improve allocation efficiency of mental health resources.
+1. Develop robust statistical indicators for identifying depression risk.
+2. Examine key psychosocial predictors of mental health outcomes.
+3. Compare predictive performance across modeling approaches.
+4. Derive policy-relevant implications for educational administration.
 
 ---
 
-## Dataset Characteristics
+## Analytical Framework
 
-- **Sample Size**: 7,177 students
-- **Survey Period**: 2024–2025
-- **Population**: National student survey (Taiwan)
+The analytical workflow includes:
 
-### Key Variables
+- Data preparation and preprocessing
+- Feature engineering
+- Exploratory data analysis
+- Correlation analysis
+- Predictive modeling
+- High-risk subgroup identification
+- ROC curve evaluation
+
+The modeling approach emphasizes interpretability and policy applicability rather than purely algorithmic optimization.
+
+---
+
+## Key Variables
 
 - Depression score change
-- Risk classification indicators
-- Demographics (e.g., gender)
-- Psychosocial factors:
-  - Family cohesion change
-  - Parent–child relationship change
-  - Coping strategies
-  - Sleep pattern change
-  - Self-esteem change
+- Life stress events
+- Sleep pattern change
+- Family cohesion change
+- Parent–child relationship change
+- Self-esteem change
+- Academic stress
+- Gender
+
+---
+
+## Main Findings
+
+### Full Sample Analysis
+
+- Best model accuracy: **87.9%**
+- Strongest predictors:
   - Life stress events
-  - Academic stress
+  - Sleep quality change
+  - Family climate change
+  - Self-esteem
+- Life stress events significantly correlated with depression scores  
+  *(r = .373, p < 2e-16)*
 
+### High-Risk Subgroup
 
+- Prediction accuracy above 60%
+- ROC analysis indicates satisfactory discrimination
+- Encoding comparisons suggest model refinement potential
+
+---
+
+## Policy Implications
+
+- Establish early warning systems in schools.
+- Develop targeted interventions for high-risk students.
+- Improve resource allocation efficiency.
+- Support data-driven educational governance.
+
+---
+
+## Project Structure
+ ```
+student-mental-health-analysis/
+│
+├── scripts/
+│ ├── 01_data_preparation.R
+│ ├── 02_risk_classification.R
+│ ├── 03_statistical_modeling.R
+│ ├── 04_visualization.R
+│
+├── figures/
+│ ├── depression_distribution.png
+│ ├── roc_curve.png
+│ └── final_plot2.png
+│
+└── README.md
+```
+
+---
+
+## Technical Environment
+
+- R (4.x)
+- tidyverse
+- haven
+- Statistical modeling procedures
+- ROC analysis
+
+---
+
+## Reproducibility Statement
+
+All scripts are fully documented and structured to allow replication using datasets with comparable variable structures.  
+The project demonstrates transparent and modular research workflow design suitable for large-scale educational datasets.
+
+---
+
+## Author
+
+Tzu-Shen Lin, PhD  
+Quantitative Research in Adolescent Development and Educational Policy
