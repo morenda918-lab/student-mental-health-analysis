@@ -98,18 +98,14 @@ The modeling approach emphasizes interpretability and policy applicability rathe
  ```
 student-mental-health-analysis/
 │
-├── scripts/
-│ ├── 01_data_preparation.R
-│ ├── 02_risk_classification.R
-│ ├── 03_statistical_modeling.R
-│ ├── 04_visualization.R
+├── 01_data_preparation.R      # Data import and initial inspection
+├── 02_risk_classification.R   # CES-D risk classification and transition patterns
+├── 03_statistical_modeling.R  # Logistic regression modeling and ROC evaluation
+├── 04_visualization.R         # Figure generation and visualization pipeline
 │
-├── figures/
-│ ├── depression_distribution.png
-│ ├── roc_curve.png
-│ └── final_plot2.png
-│
-└── README.md
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
 ---
