@@ -110,6 +110,13 @@ student-mental-health-analysis/
 
 ---
 
+## Reproducibility Notes
+
+Intermediate datasets and generated outputs (e.g., cleaned data, model objects, and figures) are excluded from this repository to comply with data privacy regulations.
+
+All scripts are executable and will reproduce the full analytical workflow when appropriate data access is available.
+
+
 ## Technical Environment
 
 - R (4.x)
