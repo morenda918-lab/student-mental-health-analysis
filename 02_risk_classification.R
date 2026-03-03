@@ -1,86 +1,130 @@
-# 風險分類分析 - CES-D三級切分點版本
-cat("=== 階段2: 風險分類（CES-D三級切分點） ===\n")
+# ============================================================
+# Stage 2: Risk Classification (CES-D 3-level cutoffs)
+# 階段二：CES-D 三級切分點之風險分類
+# ============================================================
 
-# 清除並重新載入資料
-rm(depression_data)
-depression_data <- readRDS("02_clean_data/depression_data.rds")
+cat("=== Stage 2: Risk Classification (CES-D 3-level cutoffs) ===\n")
 
-# 載入套件
-library(tidyverse)
+# Load required packages --------------------------------------
+# 載入資料整理套件（本階段主要使用 dplyr / tidyr）
+suppressPackageStartupMessages({
+  library(tidyverse)
+})
 
-# 1. 計算憂鬱變化
-cat("計算憂鬱變化...\n")
+# Load data ----------------------------------------------------
+# 讀取前一階段輸出的 .rds（避免直接依賴原始檔）
+in_path <- "02_clean_data/depression_data.rds"
+if (!file.exists(in_path)) {
+  stop("Input file not found: ", in_path,
+       "\nPlease run Stage 1 and ensure the file exists.")
+}
+
+depression_data <- readRDS(in_path)
+cat("Data loaded from:", in_path, "\n")
+
+# Required variables check ------------------------------------
+# 檢查必要欄位是否存在（確保可重現與避免靜默錯誤）
+required_vars <- c("憂鬱總分_2024", "憂鬱總分_2025")
+missing_vars <- setdiff(required_vars, names(depression_data))
+if (length(missing_vars) > 0) {
+  stop("Missing required variables: ", paste(missing_vars, collapse = ", "))
+}
+
+# Compute depression change -----------------------------------
+# 計算憂鬱變化（2025 - 2024）；並建立是否惡化之指標
+cat("Computing change scores...\n")
 depression_data <- depression_data %>%
   mutate(
     憂鬱變化 = 憂鬱總分_2025 - 憂鬱總分_2024,
-    憂鬱惡化 = ifelse(憂鬱變化 > 0, 1, 0)
-  )
-
-# 2. CES-D三級風險模式分類
-cat("進行CES-D三級風險分類...\n")
-depression_data <- depression_data %>%
-  mutate(
-    # CES-D三級風險分類（文獻依據）
-    基線風險 = case_when(
-      憂鬱總分_2024 < 10 ~ "低風險",       # <10分：無明顯症狀
-      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 ~ "中風險",  # 10-20分：輕至中度
-      憂鬱總分_2024 >= 21 ~ "高風險"       # ≥21分：嚴重症狀
-    ),
-    
-    # 細緻風險模式分類
-    風險模式 = case_when(
-      # 高風險模式
-      憂鬱總分_2024 >= 21 & 憂鬱總分_2025 >= 21 ~ "持續高風險",
-      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 & 憂鬱總分_2025 >= 21 ~ "中轉高風險",
-      憂鬱總分_2024 < 10 & 憂鬱總分_2025 >= 21 ~ "新發高風險",
-      
-      # 中風險模式
-      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 & 憂鬱總分_2025 >= 10 & 憂鬱總分_2025 < 21 ~ "持續中風險",
-      憂鬱總分_2024 < 10 & 憂鬱總分_2025 >= 10 & 憂鬱總分_2025 < 21 ~ "新發中風險",
-      
-      # 改善與穩定
-      憂鬱總分_2024 >= 10 & 憂鬱總分_2025 < 10 ~ "改善至低風險",
-      憂鬱總分_2024 < 10 & 憂鬱總分_2025 < 10 ~ "穩定低風險",
-      
-      TRUE ~ "其他模式"
+    憂鬱惡化 = case_when(
+      is.na(憂鬱變化) ~ NA_integer_,
+      憂鬱變化 > 0 ~ 1L,
+      TRUE ~ 0L
     )
   )
 
-# 3. 檢查變數
-cat("=== 變數檢查 ===\n")
-cat("風險模式變數存在:", "風險模式" %in% names(depression_data), "\n")
-cat("基線風險變數存在:", "基線風險" %in% names(depression_data), "\n")
+# CES-D baseline risk (3-level cutoffs) -----------------------
+# CES-D 三級切分（<10 低；10-20 中；≥21 高）
+cat("Assigning baseline risk groups (CES-D cutoffs)...\n")
+depression_data <- depression_data %>%
+  mutate(
+    基線風險 = case_when(
+      is.na(憂鬱總分_2024) ~ NA_character_,
+      憂鬱總分_2024 < 10 ~ "Low risk",
+      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 ~ "Moderate risk",
+      憂鬱總分_2024 >= 21 ~ "High risk"
+    )
+  )
 
-# 4. 分析結果
-cat("=== CES-D三級切分風險模式分布 ===\n")
-risk_table <- table(depression_data$風險模式)
+# Risk pattern classification ---------------------------------
+# 風險模式：依 2024/2025 分數落點組合進行分類
+cat("Classifying risk patterns...\n")
+depression_data <- depression_data %>%
+  mutate(
+    風險模式 = case_when(
+      # If either year is missing, keep NA (avoid misclassification)
+      is.na(憂鬱總分_2024) | is.na(憂鬱總分_2025) ~ NA_character_,
+
+      # High-risk patterns
+      憂鬱總分_2024 >= 21 & 憂鬱總分_2025 >= 21 ~ "Persistent high risk",
+      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 & 憂鬱總分_2025 >= 21 ~ "Escalated to high risk",
+      憂鬱總分_2024 < 10 & 憂鬱總分_2025 >= 21 ~ "New onset high risk",
+
+      # Moderate-risk patterns
+      憂鬱總分_2024 >= 10 & 憂鬱總分_2024 < 21 &
+        憂鬱總分_2025 >= 10 & 憂鬱總分_2025 < 21 ~ "Persistent moderate risk",
+      憂鬱總分_2024 < 10 & 憂鬱總分_2025 >= 10 & 憂鬱總分_2025 < 21 ~ "New onset moderate risk",
+
+      # Improvement / stability
+      憂鬱總分_2024 >= 10 & 憂鬱總分_2025 < 10 ~ "Improved to low risk",
+      憂鬱總分_2024 < 10 & 憂鬱總分_2025 < 10 ~ "Stable low risk",
+
+      TRUE ~ "Other"
+    )
+  )
+
+# Quick verification ------------------------------------------
+# 快速檢查新變項是否建立成功
+cat("\n=== Variable check ===\n")
+cat("Has risk_pattern (風險模式):", "風險模式" %in% names(depression_data), "\n")
+cat("Has baseline_risk (基線風險):", "基線風險" %in% names(depression_data), "\n")
+
+# Distribution tables -----------------------------------------
+# 風險模式與基線風險分布（含比例）
+cat("\n=== Risk pattern distribution ===\n")
+risk_table <- table(depression_data$風險模式, useNA = "ifany")
 print(risk_table)
 
-cat("\n=== 比例分布(%) ===\n")
+cat("\n=== Proportions (%) ===\n")
 print(round(prop.table(risk_table) * 100, 2))
 
-# 5. 基線風險分布
-cat("\n=== 基線風險分布（2024年） ===\n")
-baseline_table <- table(depression_data$基線風險)
+cat("\n=== Baseline risk distribution (2024) ===\n")
+baseline_table <- table(depression_data$基線風險, useNA = "ifany")
 print(baseline_table)
-cat("\n基線比例分布(%):\n")
+
+cat("\n=== Baseline proportions (%) ===\n")
 print(round(prop.table(baseline_table) * 100, 2))
 
-# 6. 詳細統計
-cat("\n=== 各風險模式詳細統計 ===\n")
+# Summary statistics by risk pattern ---------------------------
+# 各風險模式之描述統計（人數、比例、平均分數與變化）
+cat("\n=== Summary by risk pattern ===\n")
 risk_summary <- depression_data %>%
   group_by(風險模式) %>%
   summarise(
-    人數 = n(),
-    比例 = round(n() / nrow(depression_data) * 100, 2),
-    平均2024分數 = round(mean(憂鬱總分_2024, na.rm = TRUE), 2),
-    平均2025分數 = round(mean(憂鬱總分_2025, na.rm = TRUE), 2),
-    平均變化 = round(mean(憂鬱變化, na.rm = TRUE), 2)
+    n = n(),
+    pct = round(n / nrow(depression_data) * 100, 2),
+    mean_2024 = round(mean(憂鬱總分_2024, na.rm = TRUE), 2),
+    mean_2025 = round(mean(憂鬱總分_2025, na.rm = TRUE), 2),
+    mean_change = round(mean(憂鬱變化, na.rm = TRUE), 2),
+    .groups = "drop"
   ) %>%
-  arrange(desc(平均2025分數))
+  arrange(desc(mean_2025))
 
 print(risk_summary)
 
-# 7. 保存結果
-saveRDS(depression_data, "02_clean_data/depression_with_risk_cesd.rds")
-cat("\n✅ CES-D三級風險分類完成，資料已保存\n")
+# Save output --------------------------------------------------
+# 輸出含風險分類之資料集，供後續建模使用
+out_path <- "02_clean_data/depression_with_risk_cesd.rds"
+saveRDS(depression_data, out_path)
+
+cat("\n✅ Stage 2 completed: risk classification saved to: ", out_path, "\n", sep = "")
