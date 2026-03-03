@@ -1,5 +1,9 @@
-# Student Mental Health Analysis  
+# Student Mental Health Analysis
 ### A Quantitative Research Project on Depression Risk and Educational Policy Implications
+
+This repository documents a reproducible statistical modeling pipeline developed to support evidence-based educational policy and data-driven decision-making in the domain of adolescent mental health.
+
+Leveraging longitudinal survey data, the project applies structured risk classification, logistic regression modeling, and ROC-based performance evaluation to identify depression risk trajectories and inform targeted intervention strategies.
 
 ---
 
