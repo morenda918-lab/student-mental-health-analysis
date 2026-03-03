@@ -1,0 +1,21 @@
+.gitignore
+# Research pipeline outputs
+02_clean_data/
+03_outputs/
+04_results/
+
+# Figures
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# R local files
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# OS
+.DS_Store
+Thumbs.db
